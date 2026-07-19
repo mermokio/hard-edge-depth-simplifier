@@ -52,6 +52,7 @@ Core controls cover minimum spatial scale `s`, depth geometry scale `k`, derivat
 
 ## Expected behavior
 
+- Bundled city street map: automatically applies a city-tuned continuity preset and produces several supported architectural regions rather than collapsing stage 10 into one dominant label.
 - Cylinder and sphere: preserve the silhouette while leaving the smooth interior as one partition and therefore one plane.
 - Rounded corner: reject its distributed interior normal change and produce one partition.
 - Hard building corner: retain its concentrated crease when both sides exceed `s`.

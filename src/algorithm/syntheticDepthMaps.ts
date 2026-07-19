@@ -1,6 +1,6 @@
 import type { DepthImage } from "./types";
 
-export type SyntheticExample = { id: string; name: string; expectation: string; create: (w?: number, h?: number) => DepthImage };
+export type SyntheticExample = { id: string; name: string; expectation: string; create?: (w?: number, h?: number) => DepthImage };
 const make = (name: string, fn: (u: number, v: number) => number, w = 192, h = 144): DepthImage => {
   const depth = new Float32Array(w * h), valid = new Uint8Array(w * h).fill(1);
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) depth[y * w + x] = Math.max(0, Math.min(1, fn(x / (w - 1), y / (h - 1))));
@@ -9,6 +9,7 @@ const make = (name: string, fn: (u: number, v: number) => number, w = 192, h = 1
 const circle = (u: number, v: number, cx=.5, cy=.5, r=.28) => Math.hypot(u-cx, v-cy) <= r;
 
 export const SYNTHETIC_EXAMPLES: SyntheticExample[] = [
+  { id:"city", name:"City street depth map", expectation:"Preserve the large street, façade, tree, and distant-building depth structures while absorbing window-scale texture. This example automatically loads a city-tuned partition preset."},
   { id:"cylinder", name:"Cylinder", expectation:"Preserve the silhouette; keep the varying normal field as one cylinder partition and reconstruct it with one plane.", create:(w,h)=>make("Cylinder",(u,v)=>{const x=(u-.5)/.27; return Math.abs(x)<=1 && v>.14&&v<.86 ? .42+.28*Math.sqrt(Math.max(0,1-x*x)):.18;},w,h)},
   { id:"sphere", name:"Sphere", expectation:"Preserve only the outer silhouette; do not facet the smooth sphere interior.", create:(w,h)=>make("Sphere",(u,v)=>{const x=(u-.5)/.29,y=(v-.5)/.29,r2=x*x+y*y; return r2<=1?.4+.3*Math.sqrt(1-r2):.15;},w,h)},
   { id:"sharp-corner", name:"Sharp building corner", expectation:"Preserve the central crease when both planar sides exceed the selected scale.", create:(w,h)=>make("Sharp building corner",(u)=>u<.5?.2+.35*u:.65-.25*u,w,h)},
@@ -23,4 +24,4 @@ export const SYNTHETIC_EXAMPLES: SyntheticExample[] = [
   { id:"mixed", name:"Mixed scene", expectation:"Keep the large corner and cylinder silhouette while removing the tiny sharp detail.", create:(w,h)=>make("Mixed scene",(u,v)=>{let d=u<.5?.22+.18*u:.52-.12*u; if(circle(u,v,.7,.58,.18)){const x=(u-.7)/.18;d=.55+.18*Math.sqrt(Math.max(0,1-x*x));}if(Math.abs(u-.2)<.035&&Math.abs(v-.28)<.035)d=.82;return d;},w,h)},
 ];
 
-export const getSynthetic = (id: string, w?: number, h?: number) => (SYNTHETIC_EXAMPLES.find(x=>x.id===id) || SYNTHETIC_EXAMPLES[0]).create(w,h);
+export const getSynthetic = (id: string, w?: number, h?: number) => (SYNTHETIC_EXAMPLES.find(x=>x.id===id)?.create || SYNTHETIC_EXAMPLES.find(x=>x.id==="cylinder")!.create!)(w,h);
