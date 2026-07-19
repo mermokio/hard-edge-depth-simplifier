@@ -15,7 +15,14 @@ C  = max(Cd, Cn)
 Q  = B / (T + ε)
 ```
 
-A raw boundary requires `maxCentralChange ≥ 1` and `Q ≥ Qmin`, followed by non-maximum suppression. A retained edge component must have `length ≥ λL·s`, every retained link needs enough fixed-sample support on both sides, and independent regions must satisfy both the configured characteristic-diameter and area rules. Below-scale regions always merge; depth and normal similarity select the destination only.
+A raw cue requires `maxCentralChange ≥ 1` and `Q ≥ Qmin`, followed by non-maximum suppression. Raw cues are diagnostic evidence, not a demand for a perfectly closed contour. A deterministic barrier-aware watershed grows temporary micro-regions, and region agglomeration joins neighbors unless their complete shared interface contains enough concentrated hard evidence:
+
+```text
+E(link) = raw ? 1 : clamp(C) · Q^1.5
+interfaceHardness = 0.45 · mean(E) + 0.55 · coverage(E ≥ 0.55)
+```
+
+This continuity-first posterization can preserve a coherent surface boundary even when the raw edge image has small gaps. It is not k-means, depth-value posterization, or plane fitting: temporary regions never survive merely because separate planes approximate them better. Short raw components remain visible in the audit. Closed structural interfaces receive fixed-sample two-sided support tests, and independent regions must satisfy the configured characteristic-diameter and area rules. Below-scale regions always merge; depth and normal similarity select the destination only.
 
 Each final region receives exactly one surface:
 
@@ -41,7 +48,7 @@ bun run build
 
 ## Parameters
 
-Core controls cover minimum spatial scale `s`, depth geometry scale `k`, derivative smoothing, depth and normal jump thresholds, hardness window `h`, central band `b`, minimum concentration `Qmin`, and flatness angle. Advanced controls expose the concentration display exponent, length/support/diameter/area scale factors, merge weights, slope clamp, working resolution, and overlay opacity. Every numeric control includes both a slider and direct entry plus an in-app explanation of its formula, direction, scale interaction, and failure modes.
+Core controls cover minimum spatial scale `s`, depth geometry scale `k`, derivative smoothing, depth and normal jump thresholds, hardness window `h`, central band `b`, minimum concentration `Qmin`, and flatness angle. Advanced controls expose micro-region spacing, minimum aggregate interface hardness, the concentration display exponent, length/support/diameter/area scale factors, merge weights, slope clamp, working resolution, and overlay opacity. Every numeric control includes both a slider and direct entry plus an in-app explanation of its formula, direction, scale interaction, and failure modes.
 
 ## Expected behavior
 
@@ -52,7 +59,7 @@ Core controls cover minimum spatial scale `s`, depth geometry scale `k`, derivat
 
 ## Performance
 
-Processing uses typed arrays in a cancellable Web Worker. Gaussian filtering, derivatives, link scoring, flood fills, distance propagation, and reconstruction are approximately linear in the pixel count for fixed windows. Two-sided scale support uses a deterministic 9×9 pattern, so its per-link cost does not grow quadratically with `s`. Large uploads are downsampled locally to the selected maximum working dimension.
+Processing uses typed arrays in a cancellable Web Worker. Gaussian filtering, derivatives, link scoring, barrier-aware growth, adjacency aggregation, distance propagation, and reconstruction are approximately linear in the pixel count for fixed windows and a small number of convergence passes. Two-sided scale support uses a deterministic 9×9 pattern, so its per-link cost does not grow quadratically with `s`. Large uploads are downsampled locally to the selected maximum working dimension.
 
 ## Known limitations
 

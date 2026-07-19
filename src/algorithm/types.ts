@@ -18,6 +18,8 @@ export type Parameters = {
   flatnessAngleDeg: number;
   concentrationExponent: number;
   minimumBoundaryLengthFactor: number;
+  microRegionSize: number;
+  interfaceHardCoverage: number;
   minimumSideSupportFraction: number;
   minimumDiameterFactor: number;
   minimumAreaFactor: number;
@@ -54,6 +56,9 @@ export type ScaleAudit = {
   minimumRegionDiameter: number;
   minimumRegionArea: number;
   rawComponents: number;
+  microRegions: number;
+  agglomerationMerges: number;
+  agglomerationPasses: number;
   removedShortComponents: number;
   removedUnsupportedLinks: number;
   provisionalRegions: number;
@@ -118,6 +123,8 @@ export const DEFAULT_PARAMETERS: Parameters = {
   flatnessAngleDeg: 2,
   concentrationExponent: 1,
   minimumBoundaryLengthFactor: 1,
+  microRegionSize: 16,
+  interfaceHardCoverage: 0.1,
   minimumSideSupportFraction: 0.18,
   minimumDiameterFactor: 1,
   minimumAreaFactor: 0.35,
@@ -130,4 +137,4 @@ export const DEFAULT_PARAMETERS: Parameters = {
   boundedReconstruction: true,
 };
 
-export const ALGORITHM_VERSION = "1.0.0";
+export const ALGORITHM_VERSION = "1.1.0";
